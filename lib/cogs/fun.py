@@ -131,7 +131,6 @@ class Fun(Cog):
     async def on_ready(self):
         if not self.bot.ready:
             self.bot.cogs_ready.ready_up('fun')
-        await self.bot.stdout.send('Fun cog ready')
 
 
 def setup(bot):

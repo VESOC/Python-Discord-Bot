@@ -4,6 +4,7 @@ from discord.ext.commands import Bot as BotBase
 from discord.ext.commands import (
     CommandNotFound, BadArgument, MissingRequiredArgument, CommandOnCooldown)
 from discord.ext.commands import Context, command
+from discord.ext.commands import when_mentioned_or
 from discord.errors import HTTPException, Forbidden
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from apscheduler.triggers.cron import CronTrigger
@@ -13,10 +14,15 @@ from asyncio import sleep
 
 from ..db import db
 
-PREFIX = '>'
 OWNER_IDS = [548015173156470784]
 COGS = [path.split('/')[-1][:-3] for path in glob('./lib/cogs/*.py')]
 IGNORE_EXCEPTIONS = (CommandNotFound, BadArgument)
+
+
+def get_prefix(bot, message):
+    prefix = db.field(
+        "SELECT Prefix FROM guilds WHERE GuildID = ?", message.guild.id)
+    return when_mentioned_or(prefix)(bot, message)
 
 
 class Ready(object):
@@ -34,11 +40,11 @@ class Ready(object):
 
 class Bot(BotBase):
     def __init__(self):
-        self.PREFIX = PREFIX
         self.guild = None
         self.cogs_ready = Ready()
         self.scheduler = AsyncIOScheduler()
         self.ready = False
+        self.OWNERS = OWNER_IDS
 
         db.autosave(self.scheduler)
 
@@ -46,8 +52,8 @@ class Bot(BotBase):
         # intents.members = True
 
         super().__init__(
-            command_prefix=PREFIX,
-            owner_ids=OWNER_IDS,
+            command_prefix=get_prefix,
+            owner_ids=self.OWNERS,
             intents=Intents.all()
         )
 

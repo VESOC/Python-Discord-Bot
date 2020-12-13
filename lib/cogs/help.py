@@ -62,6 +62,7 @@ class Help(Cog):
     @command(name='help', aliases=['도움말'], brief='Help Command - No Argument shows this message')
     async def show_help(self, ctx, cmd: Optional[str]):
         '''Help Command - No Argument shows this message'''
+        await ctx.message.delete()
         if cmd is None:
             menu = MenuPages(source=HelpMenu(ctx, list(self.bot.commands)),
                              clear_reactions_after=True, delete_message_after=True, timeout=60.00)
