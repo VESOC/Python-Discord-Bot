@@ -21,15 +21,17 @@ class Fun(Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @command(name='hello', aliases=['hi'], hidden=True)
+    @command(name='hello', aliases=['hi'], hidden=True, brief='Says hello to the user')
     async def say_hello(self, ctx):
+        '''Says hello to the user'''
         await ctx.send(f"{choice(['Hello', 'Hi', 'How are you'])} {ctx.author.mention}")
         # await ctx.author.send(f'You invoked hello from {ctx.guild} {ctx.channel}')
 
-    @command(name='dice', aliases=['roll'])
+    @command(name='dice', aliases=['roll'], brief='Returns random number between the two arguments.')
     @cooldown(1, 60, BucketType.user)
-    async def roll_dice(self, ctx, min_value: Optional[int] = 1, max_value: int = 6):
-        value = randint(min_value, max_value)
+    async def roll_dice(self, ctx, minimum: Optional[int] = 1, maximum: Optional[int] = 6):
+        '''Returns random number between the two arguments.'''
+        value = randint(minimum, maximum)
         await ctx.send(f'Result: {value}')
 
     @roll_dice.error
@@ -42,8 +44,9 @@ class Fun(Cog):
         else:
             await ctx.send('Unknown Error check error channel.')
 
-    @command(name='slap', aliases=['hit'])
+    @command(name='slap', aliases=['hit'], brief='Slaps the mentioned user.')
     async def slap_member(self, ctx, member: Member, *, reason: Optional[str] = 'no reason'):
+        '''Slaps the mentioned user.'''
         await ctx.send(f'{ctx.author.display_name} slapped {member.mention} for {reason}!')
 
     @slap_member.error
@@ -51,20 +54,23 @@ class Fun(Cog):
         if isinstance(exc, BadArgument):
             await ctx.send('That member does not exist.')
 
-    @command(name='echo', aliases=['say'])
+    @command(name='echo', aliases=['say'], brief='Deletes command message and repeats the given argument.')
     @cooldown(3, 60, BucketType.guild)
     async def echo_message(self, ctx, value: Optional[int] = 10, *, message):
+        '''Deletes command message and repeats the given argument.'''
         await ctx.message.delete()
         for _ in range(value):
             await ctx.send(message)
 
-    @command(name='clear', aliases=['c'])
-    async def clear_chat(self, ctx, value: int = 1):
-        await ctx.channel.purge(limit=value+1)
+    @command(name='clear', aliases=['c'], brief='Deletes command message and <number> amount of preceeding messages.')
+    async def clear_chat(self, ctx, number: int = 1):
+        '''Deletes command message and <number> amount of preceeding messages.'''
+        await ctx.channel.purge(limit=number+1)
 
-    @command(name='fact')
+    @command(name='fact', brief='Sends an Embed with a random fact and picture about the animal.')
     @cooldown(3, 60, BucketType.guild)
     async def animal_fact(self, ctx, animal: str = 'dog'):
+        '''Sends an Embed with a random fact and picture about the animal.'''
         if (animal := animal.lower()) in ('dog', 'cat', 'panda', 'fox', 'bird', 'koala'):
             FACT_URL = f'https://some-random-api.ml/facts/{animal}'
             IMAGE_URL = f'https://some-random-api.ml/img/{"birb" if animal == "bird" else animal}'
@@ -89,9 +95,10 @@ class Fun(Cog):
         else:
             await ctx.send('No facts available for that animal.')
 
-    @command(aliases=['이미지검색'])
+    @command(name='이미지검색', aliases=['image'], brief='Finds image from naver and returns it as an Embed')
     @cooldown(3, 30, BucketType.guild)
     async def search_image(self, ctx, *, Text):
+        '''Finds image from naver and returns it as an Embed'''
         randomNum = random.randrange(0, 40)
         location = Text
         enc_location = urllib.parse.quote(location)
