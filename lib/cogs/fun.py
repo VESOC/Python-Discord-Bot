@@ -62,11 +62,6 @@ class Fun(Cog):
         for _ in range(value):
             await ctx.send(message)
 
-    @command(name='clear', aliases=['c'], brief='Deletes command message and <number> amount of preceeding messages.')
-    async def clear_chat(self, ctx, number: int = 1):
-        '''Deletes command message and <number> amount of preceeding messages.'''
-        await ctx.channel.purge(limit=number+1)
-
     @command(name='fact', brief='Sends an Embed with a random fact and picture about the animal.')
     @cooldown(3, 60, BucketType.guild)
     async def animal_fact(self, ctx, animal: str = 'dog'):
