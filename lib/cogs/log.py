@@ -71,7 +71,7 @@ class Log(Cog):
             await self.log_channel.send(embed=embed)
 
         elif before.roles != after.roles:
-            embed = Embed(title=f"Role updates {after.author.display_name}",
+            embed = Embed(title=f"Role updates {after.display_name}",
                           colour=after.colour,
                           timestamp=datetime.utcnow())
 
@@ -88,7 +88,7 @@ class Log(Cog):
         if not after.author.bot:
             if before.content != after.content:
                 embed = Embed(title="Message edit",
-                              description=f"Edit by {after.author.display_name}.",
+                              description=f"Edit by {after.display_name}.",
                               colour=after.author.colour,
                               timestamp=datetime.utcnow())
 

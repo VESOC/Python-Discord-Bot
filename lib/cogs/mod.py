@@ -18,7 +18,7 @@ class Mod(Cog):
             await ctx.send('One or more required arguments are missing.')
         else:
             for target in targets:
-                if (ctx.guild.me.top_role > target.top_role.position and not target.guild_permissions.administrator):
+                if (ctx.guild.me.top_role.position > target.top_role.position and not target.guild_permissions.administrator):
                     await target.kick(reason=reason)
                     embed = Embed(title='Member kicked',
                                   colour=0xDD2222, timestamp=datetime.utcnow())
@@ -49,7 +49,7 @@ class Mod(Cog):
             await ctx.send('One or more required arguments are missing.')
         else:
             for target in targets:
-                if (ctx.guild.me.top_role > target.top_role.position and not target.guild_permissions.administrator):
+                if (ctx.guild.me.top_role.position > target.top_role.position and not target.guild_permissions.administrator):
                     await target.ban(reason=reason)
                     embed = Embed(title='Member banned',
                                   colour=0xDD2222, timestamp=datetime.utcnow())
@@ -86,6 +86,11 @@ class Mod(Cog):
         else:
             await ctx.send('The limit provided is not within acceptable bounds.')
 
+    @clear_messages.error
+    async def clear_messages_error(self, ctx, exc):
+        if isinstance(exc, CheckFailure):
+            await ctx.send('Insufficient permissions to perform that task.')
+
     @Cog.listener()
     async def on_ready(self):
         if not self.bot.ready:
@@ -93,4 +98,4 @@ class Mod(Cog):
 
 
 def setup(bot):
-    bot.add_cod(Mod(bot))
+    bot.add_cog(Mod(bot))
