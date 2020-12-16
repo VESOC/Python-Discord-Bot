@@ -77,7 +77,7 @@ class Mod(Cog):
     @has_permissions(manage_messages=True)
     async def clear_messages(self, ctx, targets: Greedy[Member], limit: Optional[int] = 1):
         def _check(message):
-            return not len(target) or message.author in targets
+            return not len(targets) or message.author in targets
         if 0 < limit <= 100:
             with ctx.channel.typing():
                 await ctx.message.delete()
