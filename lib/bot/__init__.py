@@ -1,5 +1,5 @@
 from discord import Intents
-from discord import Embed, File
+from discord import Embed, File, DMChannel
 from discord.ext.commands import Bot as BotBase
 from discord.ext.commands import (
     CommandNotFound, BadArgument, MissingRequiredArgument, CommandOnCooldown)
@@ -20,8 +20,11 @@ IGNORE_EXCEPTIONS = (CommandNotFound, BadArgument)
 
 
 def get_prefix(bot, message):
-    prefix = db.field(
-        "SELECT Prefix FROM guilds WHERE GuildID = ?", message.guild.id)
+    try:
+        prefix = db.field(
+            "SELECT Prefix FROM guilds WHERE GuildID = ?", message.guild.id)
+    except:
+        prefix = '>'
     return when_mentioned_or(prefix)(bot, message)
 
 
@@ -95,7 +98,7 @@ class Bot(BotBase):
             await args[0].send('Something went wrong')
 
         await self.stdout.send('On error ' + str(err))
-        raise
+        raise err
 
     async def on_command_error(self, ctx, exc):
         if any(isinstance(exc, error) for error in IGNORE_EXCEPTIONS):
@@ -161,7 +164,21 @@ class Bot(BotBase):
             print('Bot Reconnected')
 
     async def on_message(self, message):
-        await self.process_commands(message)
+        if not message.author.bot:
+            if isinstance(message.channel, DMChannel):
+                member = self.guild.get_member(message.author.id)
+                embed = Embed(title='Modmail',
+                              colour=member.colour, timestamp=datetime.utcnow())
+                embed.set_thumbnail(url=member.avatar_url)
+                fields = [
+                    ('Member', f'{member.display_name}', False),
+                    ('Message', message.content, False)
+                ]
+                for name, value, inline in fields:
+                    embed.add_field(name=name, value=value, inline=inline)
+                await self.stdout.send(embed=embed)
+                await message.channel.send('Message relayed to moderators.')
+            await self.process_commands(message)
 
 
 bot = Bot()

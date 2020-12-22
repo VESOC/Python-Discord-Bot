@@ -108,7 +108,8 @@ class Log(Cog):
                           colour=message.author.colour,
                           timestamp=datetime.utcnow())
 
-            fields = [("Content", message.content, False)]
+            fields = [
+                ("Content", message.content or 'Unable to accquire', False)]
 
             for name, value, inline in fields:
                 embed.add_field(name=name, value=value, inline=inline)

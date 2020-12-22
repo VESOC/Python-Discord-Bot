@@ -9,3 +9,15 @@ CREATE TABLE IF NOT EXISTS exp (
 	Level integer DEFAULT 0,
 	XPLock text DEFAULT CURRENT_TIMESTAMP
 );
+
+CREATE TABLE IF NOT EXISTS mutes (
+	UserID interger PRIMARY KEY,
+	RoleIDs text,
+	EndTime text
+);
+
+CREATE TABLE IF NOT EXISTS starboard (
+	RootMessageID integer PRIMARY KEY,
+	StarMessageID integer,
+	Stars integer DEFAULT 1
+);

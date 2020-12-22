@@ -2,7 +2,7 @@ from discord.ext.commands import Cog, BucketType
 from discord.ext.commands import command, cooldown
 from discord.ext.commands import BadArgument, CommandOnCooldown
 from discord.errors import HTTPException
-from discord import Member, Embed
+from discord import Member, Embed, DMChannel
 import discord
 from typing import Optional
 from random import choice, randint
@@ -117,6 +117,10 @@ class Fun(Cog):
         embed.set_image(url=imglink)
 
         await ctx.send(embed=embed)
+
+    @command(name='sendme')
+    async def sendme(self, ctx):
+        await ctx.author.send('Sent!')
 
     @search_image.error
     async def search_image_error(self, ctx, exc):
