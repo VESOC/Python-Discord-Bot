@@ -49,6 +49,12 @@ class Bot(BotBase):
         self.ready = False
         self.OWNERS = OWNER_IDS
 
+        try:
+            with open('./data/banlist.txt', 'r', encoding='utf-8') as f:
+                self.banlist = [int(line.strip()) for line in f.readlines()]
+        except FileNotFoundError:
+            self.banlist = []
+
         db.autosave(self.scheduler)
 
         # intents = Intents.default() # Intents.none()
@@ -59,6 +65,20 @@ class Bot(BotBase):
             owner_ids=self.OWNERS,
             intents=Intents.all()
         )
+
+    def update_db(self):
+        db.multiexec('INSERT OR IGNORE INTO guilds (GuildID) VALUES (?)',
+                     ((guild.id,) for guild in self.guilds))
+        db.multiexec('INSERT OR IGNORE INTO exp (UserID) values (?)',  ((
+            member.id,) for member in self.guild.members if not member.bot))  # for guild in self.guilds for member in guild.members
+        stored_members = db.column('SELECT UserID FROM exp')
+        to_remove = []
+        for id_ in stored_members:
+            if not self.guild.get_member(id_):
+                to_remove.append(id_)
+        db.multiexec('DELETE FROM exp WHERE UserID = ?',
+                     ((id_ for if_ in to_remove)))
+        db.commit()
 
     def setup(self):
         for cog in COGS:
@@ -79,10 +99,12 @@ class Bot(BotBase):
     async def process_commands(self, message):
         ctx = await self.get_context(message, cls=Context)
         if ctx.command is not None and ctx.guild is not None:
-            if self.ready:
-                await self.invoke(ctx)
-            else:
+            if message.author.id in self.banlist:
+                await ctx.send('You are banned from using commands.')
+            elif not self.ready:
                 await ctx.send("I'm not ready to receive commands. Please wait a few seconds.")
+            else:
+                await self.invoke(ctx)
 
     async def on_connect(self):
         print('Bot Connected')
@@ -133,6 +155,7 @@ class Bot(BotBase):
             self.scheduler.add_job(
                 self.reminder, CronTrigger(hour="8", minute="0", second="0"))
             self.scheduler.start()
+            self.update_db()
 
             # channel = self.get_channel(786025577516761089)
             # await channel.send('테스트봇 온라인')
@@ -160,6 +183,8 @@ class Bot(BotBase):
 
             self.ready = True
             print('Bot Ready')
+            meta = self.get_cog('Meta')
+            await meta.set()
         else:
             print('Bot Reconnected')
 
