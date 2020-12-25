@@ -29,7 +29,7 @@ class HelpMenu(ListPageSource):
 
         embed = Embed(title='Help', description='Welcome to the DBot help dialog!',
                       colour=self.ctx.author.colour)
-        embed.set_thumbnail(url=self.ctx.guild.me.avatar_url)
+        embed.set_thumbnail(url=self.ctx.guild.icon_url)
         embed.set_footer(
             text=f'{offset:,} - {min(len_data, offset+self.per_page-1):,} of {len_data:,} commands.')
         for name, value in fields:
@@ -65,7 +65,7 @@ class Help(Cog):
         await ctx.message.delete()
         if cmd is None:
             menu = MenuPages(source=HelpMenu(ctx, list(self.bot.commands)),
-                             clear_reactions_after=True, delete_message_after=True, timeout=60.00)
+                             clear_reactions_after=True, delete_message_after=True, timeout=60.0)
             await menu.start(ctx)
 
         else:
