@@ -16,20 +16,22 @@ class Welcome(Cog):
 
     @Cog.listener()
     async def on_member_join(self, member):
-        db.execute('INSERT INTO exp (UserID) VALUES (?)', member.id)
-        await self.bot.get_channel(784686063499083788).send(f'Welcome to **{member.guild.name}** {member.mention}! Head over to {self.bot.get_channel(784686063499083788)} to say hi.')
-        try:
-            await member.send(f'Welcome to **{member.guild.name}**! Enjoy your stay!')
-        except Forbidden:
-            pass
-        await member.add_roles(*(member.guild.get_role(id_) for id_ in (787596422165954593, 787596349122150420)))
+        if not member.bot:
+            db.execute('INSERT INTO exp (UserID) VALUES (?)', member.id)
+            await self.bot.get_channel(784686063499083788).send(f'Welcome to **{member.guild.name}** {member.mention}! Head over to {self.bot.get_channel(784686063499083788)} to say hi.')
+            try:
+                await member.send(f'Welcome to **{member.guild.name}**! Enjoy your stay!')
+            except Forbidden:
+                pass
+            await member.add_roles(*(member.guild.get_role(id_) for id_ in (787596422165954593, 787596349122150420)))
 
-        # await member.edit(roles=[*member.roles, *[member.guild.get_role(id_) for id_ in (787596422165954593, 787596349122150420)]])
+            # await member.edit(roles=[*member.roles, *[member.guild.get_role(id_) for id_ in (787596422165954593, 787596349122150420)]])
 
     @Cog.listener()
     async def on_member_remove(self, member):
-        db.execute('DELETE FROM exp WHERE UserID = ?', member.id)
-        await self.bot.get_channel(784686063499083788).send(f'{member.display_name} has left {member.guild.name}')
+        if not member.bot:
+            db.execute('DELETE FROM exp WHERE UserID = ?', member.id)
+            await self.bot.get_channel(784686063499083788).send(f'{member.display_name} has left {member.guild.name}')
 
 
 def setup(bot):

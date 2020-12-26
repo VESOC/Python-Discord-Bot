@@ -53,7 +53,7 @@ class Reactions(Cog):
              f'{datetime.utcnow()+timedelta(seconds=mins*60)} UTC', False)
         ]
         for name, value, inline in fields:
-            embed.add_field(name=name, value=value, inline)
+            embed.add_field(name=name, value=value, inline=inline)
         message = await ctx.send(embed=embed)
         await message.add_reaction('✅')
         self.giveaways.append((message.channel.id, message.id))
@@ -63,7 +63,7 @@ class Reactions(Cog):
     async def complete_giveaway(self, channel_id, message_id):
         message = await self.bot.get_channel(channel_id).fetch_message(message_id)
         if len((entrants := [u for u in await message.reactions[0].users().flatten() if not u.bot])) > 0:
-            winner = choice([u for u in await message.reactions[0].users().flatten() if not u.bot])
+            winner = choice(entrants)
             await message.channel.send(f'Congratulations {winner.mention} - you won the giveaway!')
         else:
             await message.channel.send('Giveaway ended - no one entered!')
